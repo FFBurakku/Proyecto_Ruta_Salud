@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Traslado</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="menu-expandido">
+
+        <div class="perfil">
+            <img src="img/iconousuario.png">
+            <span>Nombre Usuario</span>
+        </div>
+
+        <p>REGISTRAR</p>
+        <a href="03_agendamiento.html">Agendamiento</a>
+        <a href="04_traslado.html">Traslado</a>
+
+        <p>CONSULTAR</p>
+        <a href="05_consulta_agendamiento.html">Agendamientos</a>
+        <a href="06_consulta_traslado.html">Traslados</a>
+
+        <p>DESCARGAR</p>
+        <a href="07_descarga.html">Bases</a>
+    </div>
+</div>
+
+<div class="contenido">
+
+    <div class="header">
+        <div class="titulo">TRASLADO</div>
+    </div>
+
+    <div class="iconos">
+        <div class="icono-grande">
+            <img src="img/iconousuario.png">
+        </div>
+
+        <div class="icono-grande">
+            <img src="img/iconoruta.png">
+        </div>
+    </div>
+
+    <div class="formulario">
+
+        <div class="columna">
+            <label>Tipo Documento:</label>
+            <select id="tipoDocumentoT">
+                <option value="">Seleccionar</option>
+                <option>CC</option>
+                <option>TI</option>
+                <option>RC</option>
+            </select>
+
+            <label>N° Documento:</label>
+            <input type="text" id="documentoT">
+
+            <label>Nombre:</label>
+            <input type="text" id="nombreT">
+
+            <label>Apellidos:</label>
+            <input type="text" id="apellidosT">
+        </div>
+
+        <div class="columna">
+            <label>Fecha:</label>
+            <input type="date" id="fechaT">
+
+            <label>Hora Origen:</label>
+            <input type="time" id="horaOrigen">
+
+            <label>Hora Llegada:</label>
+            <input type="time" id="horaLlegada">
+
+            <label>Placa Vehículo:</label>
+            <input type="text" id="placa">
+
+            <label>Punto de Origen:</label>
+            <select id="origenT">
+                <option value="">Seleccionar</option>
+                <option>01. USS Simon Bolivar</option>
+                <option>03. USS Engativa</option>
+                <option>14. CSE Suba</option>
+            </select>
+
+            <label>Punto de Destino:</label>
+            <select id="destinoT">
+                <option value="">Seleccionar</option>
+                <option>01. USS Simon Bolivar</option>
+                <option>03. USS Engativa</option>
+                <option>14. CSE Suba</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:30px;">
+        <button onclick="guardarTraslado()">Guardar</button>
+    </div>
+
+    <p id="mensajeT" style="text-align:center; margin-top:15px; font-weight:bold;"></p>
+
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

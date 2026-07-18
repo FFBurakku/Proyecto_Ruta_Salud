@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Crear Usuario</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <img src="img/logo.png">
+
+    <h2>Registro de Usuario</h2>
+
+    <!-- Se quita el "action" porque ahora el envío lo maneja JavaScript (función registrarUsuario) -->
+    <form id="formRegistro">
+
+        <!-- id="documento": este valor también funciona como el "usuario" para iniciar sesión -->
+        <input type="text" id="documento" placeholder="Número de documento" required>
+
+        <input type="text" placeholder="Nombres" required>
+
+        <input type="text" placeholder="Apellidos" required>
+
+        <input type="email" placeholder="Correo electrónico" required>
+
+        <input type="password" id="password" placeholder="Contraseña" required>
+
+        <input type="password" id="confirmarPassword" placeholder="Confirmar contraseña" required>
+
+        <!-- Aquí se mostrarán los mensajes de éxito o error -->
+        <p id="mensajeRegistro"></p>
+
+        <button type="submit">Crear Usuario</button>
+
+        <p class="registro">
+            ¿Ya tienes una cuenta?
+            <a href="01_Login.html">Iniciar Sesión</a>
+        </p>
+
+    </form>
+
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>
