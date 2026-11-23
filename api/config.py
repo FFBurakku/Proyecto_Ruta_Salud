@@ -2,10 +2,10 @@
 # config.py
 # Configuración de la API de Ruta de la Salud.
 #
-# Los valores se leen de variables de entorno. En tu computador
-# se cargan desde un archivo ".env" (ver ".env.example"); en el
-# servidor de producción (Render) se escriben en el panel de la
-# plataforma. Así NO se guardan contraseñas dentro del código.
+# Los valores se leen de variables de entorno. En desarrollo local
+# se cargan desde un archivo ".env" (ver ".env.example"); en producción
+# (Render) se definen en el panel de la plataforma. De esta forma no se
+# guardan contraseñas dentro del código.
 # =========================================================
 
 import os
@@ -35,6 +35,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Horas que dura una sesión antes de pedir iniciar sesión de nuevo
 TOKEN_HORAS = int(os.getenv("TOKEN_HORAS", "8"))
+
+# Direcciones desde las que el frontend puede llamar a la API (CORS).
+# En local: "*". En producción: la dirección de la página web, por ejemplo
+# "https://proyecto-ruta-salud.netlify.app" (varias se separan con comas).
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 
 # Direcciones desde las que el frontend puede llamar a la API (CORS).
 # En local: "*". En producción: la dirección de tu página, por ejemplo
