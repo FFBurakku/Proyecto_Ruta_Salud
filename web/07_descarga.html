@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Descargas</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body data-privada>
+
+<div class="sidebar">
+
+    <div class="menu-expandido">
+
+        <div class="perfil">
+            <img src="img/iconousuario.png">
+            <span class="nombre-usuario">Usuario</span>
+        </div>
+
+        <p>REGISTRAR</p>
+        <a href="03_agendamiento.html">Agendamiento</a>
+        <a href="04_traslado.html">Traslado</a>
+
+        <p>CONSULTAR</p>
+        <a href="05_consulta_agendamiento.html">Agendamientos</a>
+        <a href="06_consulta_traslado.html">Traslados</a>
+
+        <p>DESCARGAR</p>
+        <a href="07_descarga.html">Bases</a>
+
+        <p>SESIÓN</p>
+        <a href="#" class="cerrar-sesion">Cerrar sesión</a>
+    </div>
+</div>
+
+<div class="contenido">
+
+    <div class="titulo">DESCARGA DE BASES</div>
+
+    <div class="descargas">
+        <a class="boton" href="#" onclick="descargarCsv('/api/agendamientos/csv','agendamientos.csv'); return false;">Descargar Agendamientos</a>
+        <a class="boton" href="#" onclick="descargarCsv('/api/traslados/csv','traslados.csv'); return false;">Descargar Traslados</a>
+    </div>
+    <p id="mensajeDescarga" style="text-align:center;margin-top:20px"></p>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

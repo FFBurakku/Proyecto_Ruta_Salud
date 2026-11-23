@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Agendamiento</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body data-privada>
+
+<div class="sidebar">
+    <div class="menu-expandido">
+
+        <div class="perfil">
+            <img src="img/iconousuario.png">
+            <span class="nombre-usuario">Usuario</span>
+        </div>
+
+        <p>REGISTRAR</p>
+        <a href="03_agendamiento.html">Agendamiento</a>
+        <a href="04_traslado.html">Traslado</a>
+
+        <p>CONSULTAR</p>
+        <a href="05_consulta_agendamiento.html">Agendamientos</a>
+        <a href="06_consulta_traslado.html">Traslados</a>
+
+        <p>DESCARGAR</p>
+        <a href="07_descarga.html">Bases</a>
+
+        <p>SESIÓN</p>
+        <a href="#" class="cerrar-sesion">Cerrar sesión</a>
+    </div>
+</div>
+
+<div class="contenido">
+
+    <div class="header">
+        <div class="titulo">AGENDAMIENTO</div>
+    </div>
+
+    <div class="iconos">
+        <div class="icono-grande">
+            <img src="img/iconousuario.png">
+        </div>
+
+        <div class="icono-grande">
+            <img src="img/iconoruta.png">
+        </div>
+    </div>
+
+    <div class="formulario">
+
+        <div class="columna">
+            <label>Tipo Documento:</label>
+            <select id="tipoDocumento">
+                <option value="">Seleccionar</option>
+                <option>CC</option>
+                <option>TI</option>
+                <option>RC</option>
+            </select>
+
+            <label>N° Documento:</label>
+            <input type="text" id="documento">
+
+            <label>Nombre:</label>
+            <input type="text" id="nombre">
+
+            <label>Apellidos:</label>
+            <input type="text" id="apellidos">
+
+            <label>Edad:</label>
+            <input type="number" id="edad">
+        </div>
+
+        <div class="columna">
+            <label>Fecha Solicitada:</label>
+            <input type="date" id="fecha">
+
+            <label>Punto de Origen:</label>
+            <select id="origen">
+                <option value="">Seleccionar</option>
+                <option>01. USS Simon Bolivar</option>
+                <option>03. USS Engativa</option>
+                <option>14. CSE Suba</option>
+            </select>
+
+            <label>Punto de Destino:</label>
+            <select id="destino">
+                <option value="">Seleccionar</option>
+                <option>01. USS Simon Bolivar</option>
+                <option>03. USS Engativa</option>
+                <option>14. CSE Suba</option>
+            </select>
+
+            <label>Hora de llegada:</label>
+            <input type="time" id="hora">
+
+            <label>Motivo Solicitud:</label>
+            <input type="text" id="motivo">
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:30px;">
+        <button onclick="guardarAgendamiento()">Guardar</button>
+    </div>
+
+    <p id="mensaje" style="text-align:center; margin-top:15px; font-weight:bold;"></p>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>
