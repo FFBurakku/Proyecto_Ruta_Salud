@@ -1,1 +1,1 @@
-const API_URL = "https://ruta-salud-api.onrender.com";
+const API_URL = "https://proyecto-ruta-salud.netlify.app/";
