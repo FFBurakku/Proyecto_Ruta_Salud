@@ -30,6 +30,3 @@ Sistema web para registrar y consultar agendamientos y traslados de pacientes.
 - Página web: Netlify (carpeta `web`). La dirección de la API se configura en `web/js/config.js`.
 
 Variables de entorno de la API: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSL`, `SECRET_KEY`, `CORS_ORIGINS`, `ADMIN_DOCUMENTO`, `ADMIN_PASSWORD`.
-
-## Herramientas utilizadas
-Parte del desarrollo se realizó con apoyo de herramientas de inteligencia artificial, con autorización del instructor.
