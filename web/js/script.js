@@ -3,17 +3,23 @@
 // de registro o de login en el HTML actual, le "engancha" el evento submit.
 // =========================================================
 document.addEventListener("DOMContentLoaded", () => {
-    const formRegistro = document.getElementById("formRegistro");
-    if (formRegistro) {
-        formRegistro.addEventListener("submit", registrarUsuario);
-    }
-
     // Páginas internas: sin sesión se vuelve al login; con sesión se muestra el usuario
     if (document.body.dataset.privada !== undefined) {
         if (!sessionStorage.getItem("token")) {
             window.location.href = "01_Login.html";
             return;
         }
+        const esAdmin = sessionStorage.getItem("rol") === "admin";
+        if (document.body.dataset.privada === "admin" && !esAdmin) {
+            window.location.href = "02_menu.html";
+            return;
+        }
+        if (esAdmin) {
+            document.querySelectorAll(".solo-admin").forEach(e => e.style.display = "");
+        }
+        if (document.getElementById("tablaUsuarios")) mostrarUsuarios();
+        const formUsuario = document.getElementById("formUsuario");
+        if (formUsuario) formUsuario.addEventListener("submit", crearUsuario);
         document.querySelectorAll(".nombre-usuario").forEach(e => {
             e.textContent = sessionStorage.getItem("usuario");
         });
@@ -33,53 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formLogin.addEventListener("submit", iniciarSesion);
     }
 });
-
-// =========================================================
-// Registro de usuario: envía username y password a la API
-// =========================================================
-async function registrarUsuario(evento) {
-    evento.preventDefault(); // evita que el formulario recargue la página
-
-    let documento = document.getElementById("documento").value;
-    let password = document.getElementById("password").value;
-    let confirmarPassword = document.getElementById("confirmarPassword").value;
-    let mensaje = document.getElementById("mensajeRegistro");
-
-    if (password !== confirmarPassword) {
-        mensaje.style.color = "red";
-        mensaje.innerText = "Las contraseñas no coinciden";
-        return;
-    }
-
-    try {
-        const respuesta = await fetch(`${API_URL}/api/registro`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // El documento se envía como "username": es lo que identifica al usuario para el login
-            body: JSON.stringify({ username: documento, password })
-        });
-
-        const datos = await respuesta.json();
-
-        if (respuesta.ok) {
-            mensaje.style.color = "green";
-            mensaje.innerText = datos.mensaje;
-            // Después de registrar, lo mandamos a la pantalla de login
-            setTimeout(() => {
-                window.location.href = "01_Login.html";
-            }, 1200);
-        } else {
-            mensaje.style.color = "red";
-            mensaje.innerText = datos.error || datos.mensaje;
-        }
-
-    } catch (error) {
-        // Esto se dispara, por ejemplo, si la API no está corriendo
-        mensaje.style.color = "red";
-        mensaje.innerText = "No se pudo conectar con el servidor. ¿Está corriendo la API?";
-        console.error(error);
-    }
-}
 
 // =========================================================
 // Inicio de sesión: envía username y password a la API
@@ -106,6 +65,7 @@ async function iniciarSesion(evento) {
             // Guardamos el token de sesión (se borra al cerrar la pestaña)
             sessionStorage.setItem("token", datos.token);
             sessionStorage.setItem("usuario", datos.username);
+            sessionStorage.setItem("rol", datos.rol);
             setTimeout(() => {
                 window.location.href = "02_menu.html";
             }, 800);
@@ -262,5 +222,76 @@ async function descargarCsv(ruta, nombre) {
         if (aviso) { aviso.style.color = "green"; aviso.innerText = "Descarga lista: " + nombre; }
     } catch (e) {
         if (aviso) { aviso.style.color = "red"; aviso.innerText = "No se pudo descargar el archivo"; }
+    }
+}
+
+// =========================================================
+// Administración de usuarios (solo rol administrador)
+// =========================================================
+async function mostrarUsuarios() {
+    const tabla = document.getElementById("tablaUsuarios");
+    try {
+        const r = await llamarApi("/api/usuarios");
+        const lista = await r.json();
+        if (!r.ok) throw new Error(lista.error);
+        const yo = sessionStorage.getItem("usuario");
+        tabla.innerHTML = lista.map((u, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${esc(u.username)}</td>
+                <td>${esc(u.rol === "admin" ? "Administrador" : "Usuario")}</td>
+                <td>${esc(u.fecha_registro)}</td>
+                <td>${u.username === yo ? "—" :
+                    `<button class="btn-tabla" data-doc="${esc(u.username)}">Eliminar</button>`}</td>
+            </tr>`).join("");
+        tabla.querySelectorAll("button[data-doc]").forEach(b =>
+            b.addEventListener("click", () => eliminarUsuario(b.dataset.doc)));
+    } catch (e) {
+        tabla.innerHTML = '<tr><td colspan="5">No se pudieron cargar los usuarios</td></tr>';
+    }
+}
+
+async function crearUsuario(evento) {
+    evento.preventDefault();
+    const mensaje = document.getElementById("mensajeUsuario");
+    const username = document.getElementById("nuevoDocumento").value.trim();
+    const password = document.getElementById("nuevaPassword").value;
+    const confirmar = document.getElementById("confirmarNuevaPassword").value;
+    const rol = document.getElementById("nuevoRol").value;
+    if (password !== confirmar) {
+        mensaje.style.color = "red";
+        mensaje.innerText = "Las contraseñas no coinciden";
+        return;
+    }
+    try {
+        const r = await llamarApi("/api/usuarios", {
+            method: "POST",
+            body: JSON.stringify({ username, password, rol })
+        });
+        const d = await r.json();
+        mensaje.style.color = r.ok ? "green" : "red";
+        mensaje.innerText = r.ok ? d.mensaje : (d.error || "No se pudo crear el usuario");
+        if (r.ok) {
+            document.getElementById("formUsuario").reset();
+            mostrarUsuarios();
+        }
+    } catch (e) {
+        mensaje.style.color = "red";
+        mensaje.innerText = "No se pudo conectar con el servidor";
+    }
+}
+
+async function eliminarUsuario(documento) {
+    if (!confirm("¿Eliminar al usuario " + documento + "?")) return;
+    const mensaje = document.getElementById("mensajeUsuario");
+    try {
+        const r = await llamarApi("/api/usuarios/" + encodeURIComponent(documento), { method: "DELETE" });
+        const d = await r.json();
+        mensaje.style.color = r.ok ? "green" : "red";
+        mensaje.innerText = r.ok ? d.mensaje : (d.error || "No se pudo eliminar");
+        mostrarUsuarios();
+    } catch (e) {
+        mensaje.style.color = "red";
+        mensaje.innerText = "No se pudo conectar con el servidor";
     }
 }

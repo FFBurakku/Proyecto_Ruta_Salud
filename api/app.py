@@ -57,9 +57,63 @@ def requiere_sesion(f):
             return error("La sesión expiró, inicia sesión de nuevo", 401)
         except BadSignature:
             return error("Sesión no válida", 401)
+        # El rol se consulta en cada petición: si el usuario fue eliminado
+        # o cambió de rol, el token deja de tener efecto de inmediato.
+        con = obtener_conexion()
+        try:
+            cur = con.cursor(dictionary=True)
+            cur.execute("SELECT rol FROM usuarios WHERE username=%s", (datos["u"],))
+            u = cur.fetchone()
+        finally:
+            con.close()
+        if not u:
+            return error("Sesión no válida", 401)
         g.usuario = datos["u"]
+        g.rol = u["rol"]
         return f(*args, **kwargs)
     return envoltura
+
+
+def requiere_admin(f):
+    @wraps(f)
+    @requiere_sesion
+    def envoltura(*args, **kwargs):
+        if g.rol != "admin":
+            return error("Solo el administrador puede realizar esta acción", 403)
+        return f(*args, **kwargs)
+    return envoltura
+
+
+_admin_listo = False
+
+
+def asegurar_admin():
+    """Crea el administrador inicial a partir de ADMIN_DOCUMENTO y ADMIN_PASSWORD."""
+    global _admin_listo
+    if _admin_listo or not config.ADMIN_DOCUMENTO or not config.ADMIN_PASSWORD:
+        return
+    con = obtener_conexion()
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT id FROM usuarios WHERE username=%s", (config.ADMIN_DOCUMENTO,))
+        if cur.fetchone():
+            cur.execute("UPDATE usuarios SET rol='admin' WHERE username=%s", (config.ADMIN_DOCUMENTO,))
+        else:
+            h = bcrypt.hashpw(config.ADMIN_PASSWORD.encode(), bcrypt.gensalt()).decode()
+            cur.execute("INSERT INTO usuarios (username,password,rol) VALUES (%s,%s,'admin')",
+                        (config.ADMIN_DOCUMENTO, h))
+        con.commit()
+        _admin_listo = True
+    finally:
+        con.close()
+
+
+@app.before_request
+def preparar_admin():
+    try:
+        asegurar_admin()
+    except Exception as e:  # no bloquear la API si la base aún no responde
+        app.logger.warning("No se pudo verificar el administrador: %s", e)
 
 
 def validar_credenciales(username, password):
@@ -183,28 +237,6 @@ def salud():
     return jsonify({"estado": "ok", "servicio": "API Ruta de la Salud"})
 
 
-@app.route("/api/registro", methods=["POST"])
-def registro():
-    d = request.get_json(silent=True) or {}
-    username, password = d.get("username"), d.get("password")
-    msg = validar_credenciales(username, password)
-    if msg:
-        return error(msg)
-    username = username.strip()
-    hash_ = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    con = obtener_conexion()
-    try:
-        cur = con.cursor()
-        cur.execute("SELECT id FROM usuarios WHERE username=%s", (username,))
-        if cur.fetchone():
-            return error("Ese documento ya está registrado", 409)
-        cur.execute("INSERT INTO usuarios (username,password) VALUES (%s,%s)", (username, hash_))
-        con.commit()
-    finally:
-        con.close()
-    return jsonify({"mensaje": "Usuario registrado correctamente"}), 201
-
-
 @app.route("/api/login", methods=["POST"])
 def login():
     d = request.get_json(silent=True) or {}
@@ -214,36 +246,78 @@ def login():
     con = obtener_conexion()
     try:
         cur = con.cursor(dictionary=True)
-        cur.execute("SELECT username,password FROM usuarios WHERE username=%s", (username.strip(),))
+        cur.execute("SELECT username,password,rol FROM usuarios WHERE username=%s", (username.strip(),))
         u = cur.fetchone()
     finally:
         con.close()
     if not u or not bcrypt.checkpw(password.encode(), u["password"].encode()):
         return error("Documento o contraseña incorrectos", 401)
     return jsonify({"mensaje": "Inicio de sesión exitoso", "token": crear_token(u["username"]),
-                    "username": u["username"]})
+                    "username": u["username"], "rol": u["rol"]})
 
 
 @app.route("/api/me")
 @requiere_sesion
 def me():
-    return jsonify({"username": g.usuario})
+    return jsonify({"username": g.usuario, "rol": g.rol})
 
 
-# Cada usuario solo puede ver, cambiar o borrar su propia cuenta
-def solo_propio(username):
-    return username == g.usuario
+# ----- Gestión de usuarios -----
+# El administrador crea, lista y elimina usuarios. Cada usuario puede ver su
+# propia cuenta y cambiar su propia contraseña.
+
+@app.route("/api/usuarios", methods=["GET"])
+@requiere_admin
+def listar_usuarios():
+    con = obtener_conexion()
+    try:
+        cur = con.cursor(dictionary=True)
+        cur.execute("SELECT id,username,rol,fecha_registro FROM usuarios ORDER BY id")
+        return jsonify([fila_a_dict(f) for f in cur.fetchall()])
+    finally:
+        con.close()
+
+
+@app.route("/api/usuarios", methods=["POST"])
+@requiere_admin
+def crear_usuario():
+    d = request.get_json(silent=True) or {}
+    username, password = d.get("username"), d.get("password")
+    rol = d.get("rol", "usuario")
+    msg = validar_credenciales(username, password)
+    if msg:
+        return error(msg)
+    if rol not in ("admin", "usuario"):
+        return error("Rol no válido")
+    username = username.strip()
+    hash_ = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    con = obtener_conexion()
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT id FROM usuarios WHERE username=%s", (username,))
+        if cur.fetchone():
+            return error("Ese documento ya está registrado", 409)
+        cur.execute("INSERT INTO usuarios (username,password,rol) VALUES (%s,%s,%s)",
+                    (username, hash_, rol))
+        con.commit()
+    finally:
+        con.close()
+    return jsonify({"mensaje": "Usuario creado correctamente"}), 201
+
+
+def puede_gestionar(username):
+    return username == g.usuario or g.rol == "admin"
 
 
 @app.route("/api/usuarios/<username>", methods=["GET"])
 @requiere_sesion
 def ver_usuario(username):
-    if not solo_propio(username):
+    if not puede_gestionar(username):
         return error("No tienes permiso para esta acción", 403)
     con = obtener_conexion()
     try:
         cur = con.cursor(dictionary=True)
-        cur.execute("SELECT id,username,fecha_registro FROM usuarios WHERE username=%s", (username,))
+        cur.execute("SELECT id,username,rol,fecha_registro FROM usuarios WHERE username=%s", (username,))
         u = cur.fetchone()
     finally:
         con.close()
@@ -255,7 +329,7 @@ def ver_usuario(username):
 @app.route("/api/usuarios/<username>", methods=["PUT"])
 @requiere_sesion
 def cambiar_clave(username):
-    if not solo_propio(username):
+    if not puede_gestionar(username):
         return error("No tienes permiso para esta acción", 403)
     d = request.get_json(silent=True) or {}
     msg = validar_credenciales(username, d.get("password"))
@@ -273,10 +347,10 @@ def cambiar_clave(username):
 
 
 @app.route("/api/usuarios/<username>", methods=["DELETE"])
-@requiere_sesion
+@requiere_admin
 def borrar_usuario(username):
-    if not solo_propio(username):
-        return error("No tienes permiso para esta acción", 403)
+    if username == g.usuario:
+        return error("No puedes eliminar tu propia cuenta de administrador", 400)
     con = obtener_conexion()
     try:
         cur = con.cursor()

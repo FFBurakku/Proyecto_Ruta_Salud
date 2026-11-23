@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-    <meta charset="UTF-8">
-    <title>Crear Usuario</title>
-
-    <link rel="stylesheet" href="css/estilos.css">
-
+<meta charset="UTF-8">
+<title>Registro de usuarios</title>
+<link rel="stylesheet" href="css/estilos.css">
 </head>
 
 <body>
@@ -16,39 +12,15 @@
 
     <img src="img/logo.png">
 
-    <h2>Registro de Usuario</h2>
+    <h2>Registro cerrado</h2>
 
-    <form id="formRegistro">
+    <p>Las cuentas son creadas por el administrador del sistema.</p>
 
-        <!-- id="documento" funcionara como el "usuario" para iniciar sesión -->
-        <input type="text" id="documento" placeholder="Número de documento" required>
-
-        <input type="text" placeholder="Nombres" required>
-
-        <input type="text" placeholder="Apellidos" required>
-
-        <input type="email" placeholder="Correo electrónico" required>
-
-        <input type="password" id="password" placeholder="Contraseña" required>
-
-        <input type="password" id="confirmarPassword" placeholder="Confirmar contraseña" required>
-
-        <!-- Con esto se mostrarán los mensajes de éxito o error -->
-        <p id="mensajeRegistro"></p>
-
-        <button type="submit">Crear Usuario</button>
-
-        <p class="registro">
-            ¿Ya tienes una cuenta?
-            <a href="01_Login.html">Iniciar Sesión</a>
-        </p>
-
-    </form>
+    <p class="registro">
+        <a href="01_Login.html">Ir a Iniciar Sesión</a>
+    </p>
 
 </div>
-
-<script src="js/config.js"></script>
-<script src="js/script.js"></script>
 
 </body>
 </html>

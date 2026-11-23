@@ -41,7 +41,7 @@ TOKEN_HORAS = int(os.getenv("TOKEN_HORAS", "8"))
 # "https://proyecto-ruta-salud.netlify.app" (varias se separan con comas).
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 
-# Direcciones desde las que el frontend puede llamar a la API (CORS).
-# En local: "*". En producción: la dirección de tu página, por ejemplo
-# "https://ruta-salud.pages.dev" (varias se separan con comas).
-CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+# Administrador inicial: al arrancar, la API crea (o promueve) este usuario
+# como administrador. Se define solo por variables de entorno.
+ADMIN_DOCUMENTO = os.getenv("ADMIN_DOCUMENTO")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")

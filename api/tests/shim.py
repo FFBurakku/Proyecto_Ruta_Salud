@@ -28,7 +28,7 @@ except ImportError:
     sys.modules["flask_cors"] = f
 
 SCHEMA = """
-CREATE TABLE usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, rol TEXT NOT NULL DEFAULT 'usuario', fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE agendamientos (id INTEGER PRIMARY KEY AUTOINCREMENT, tipo_documento TEXT, documento TEXT, nombre TEXT, apellidos TEXT, edad INT, fecha TEXT, origen TEXT, destino TEXT, hora TEXT, motivo TEXT, registrado_por TEXT, fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE traslados (id INTEGER PRIMARY KEY AUTOINCREMENT, tipo_documento TEXT, documento TEXT, nombre TEXT, apellidos TEXT, fecha TEXT, hora_origen TEXT, hora_llegada TEXT, placa TEXT, origen TEXT, destino TEXT, registrado_por TEXT, fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP);
 """

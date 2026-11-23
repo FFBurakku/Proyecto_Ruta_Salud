@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,      -- número de documento
     password VARCHAR(255) NOT NULL,            -- hash bcrypt
+    rol VARCHAR(10) NOT NULL DEFAULT 'usuario', -- 'admin' o 'usuario'
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

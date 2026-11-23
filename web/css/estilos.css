@@ -337,3 +337,43 @@ tr:hover {
 .boton:hover {
     background-color: #4a7373;
 }
+
+
+/* Administración de usuarios */
+.form-usuario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0 5px;
+}
+
+.form-usuario input, .form-usuario select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-usuario button, .btn-tabla {
+    padding: 10px 18px;
+    background-color: #5c8d8d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-usuario button:hover, .btn-tabla:hover {
+    opacity: 0.85;
+}
+
+.btn-tabla {
+    padding: 5px 12px;
+    background-color: #b04a4a;
+}
+
+.mensaje-usuario {
+    min-height: 22px;
+    margin: 8px 0 15px;
+}
